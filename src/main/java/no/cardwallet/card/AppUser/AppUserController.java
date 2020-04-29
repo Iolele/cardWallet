@@ -1,6 +1,9 @@
 package no.cardwallet.card.AppUser;
 
 import no.cardwallet.card.GiftCard.GiftCardRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -17,6 +20,9 @@ import java.security.Principal;
 
 @Controller
 public class AppUserController {
+
+    @Autowired
+    JavaMailSender javaMailSender;
 
     final
     PasswordEncoder passwordEncoder;
@@ -39,6 +45,8 @@ public class AppUserController {
         model.addAttribute(appUser);
     }
 
+
+
     @GetMapping("/sign-up")
     public String signUp(@ModelAttribute AppUser appUser) {
         return "signUp";
@@ -54,12 +62,34 @@ public class AppUserController {
             return "signUp";
         }
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
-        appUserRepository.save(appUser); //felt på user isActiv (automatisk satt på 'false', blir satt til 'true' når brukeren trykker på lenken & oppretter kontakt). opprett også et felt 'token'.
-        return "login"; //"en epost har litt sendt til din adresse" istedenfor login viewet.
+        appUserRepository.save(appUser); //felt på user isActive (automatisk satt på 'false', blir satt til 'true' når brukeren trykker på lenken & oppretter kontakt). opprett også et felt 'token'.
+
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(appUser.getEmail());
+
+        generateLoginToken(appUser);
+
+        simpleMailMessage.setText("Welcome to wallit! To complete your registration follow this link:\n" + appUser.getLoginToken()); // FIXME hvordan lage token som lenk?
+        javaMailSender.send(simpleMailMessage);
+        return "successfullyResetPassword"; //rename view
     }
 
-    ///activate-user/<randomstring> --> send her! token er en random string m fast lengde
-    //@GetMapping('/activate-user/{token}')
+    private void generateLoginToken(@ModelAttribute AppUser appUser) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int[] loginTokenArray = new int[20];
+        for (int i = 0; i < loginTokenArray.length; i++) {
+            loginTokenArray[i] = (int) (Math.random() *10);
+            stringBuilder.append(loginTokenArray[i]);
+        }
+        String loginToken = stringBuilder.toString();
+        appUser.setLoginToken(loginToken); //FIXME hvorfor blir ikke login token lagret i database?
+    }
+
+    //activate-user/<randomstring> --> send her! token er en random string av fast lengde
+    @GetMapping("/activate-user/{loginToken}")
+    public String activateUser(@PathVariable String loginToken) {
+        return null;
+    }
 
     @GetMapping("/terms-and-conditions")
     public String termsAndConditions() {

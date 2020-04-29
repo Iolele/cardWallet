@@ -18,7 +18,7 @@ public class AppUserValidator implements Validator {
     public void validate(Object object, Errors errors) {
         AppUser appUser = (AppUser) object;
 
-        // validate email address
+        // validate email address; main validation by sending email to newly registered users, see AUController.
         ValidationUtils.rejectIfEmpty(errors, "email", "email.empty", "Email address is required.");
         //validate password
         ValidationUtils.rejectIfEmpty(errors, "password", "password.empty", "Password is required.");
@@ -26,15 +26,13 @@ public class AppUserValidator implements Validator {
         validateRepeatPassword(appUser.getPassword(), appUser.getRepeatPassword(), errors);
     }
 
-
-
     public void validateUpperLowerDigitPassword(String password, Errors errors) {
         if (checkPasswordLength(password, errors)) return;
         Pattern pattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
         Matcher matcher = pattern.matcher(password);
-        boolean isNotValidPassword = matcher.find();
+        boolean isValidPassword = matcher.find();
 
-        if (isNotValidPassword) {
+        if (!isValidPassword) {
             errors.rejectValue("password", "password.invalid", "Password must contain at least 1 uppercase & lowercase letter, " +
                     "1 digit, no special characters.");
         }

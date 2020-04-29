@@ -1,11 +1,11 @@
-INSERT INTO app_user (email, password)
-VALUES ('geir.karlsen@hotmail.com', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932');
+INSERT INTO app_user (email,login_token, password)
+VALUES ('geir.karlsen@hotmail.com','12345678901234567890', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932');
 
-INSERT INTO app_user (email, password)
-VALUES ('elise.norvik@hotmail.com', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932'); -- passord = 123; must change to meet new requirements!
+INSERT INTO app_user (email, login_token, password)
+VALUES ('elise.norvik@hotmail.com', '09876543210897654321', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932'); -- passord = 123; works despite new requirements
 
-INSERT INTO app_user (email, password)
-VALUES ('nils.nordmann@hotmail.com', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932');
+INSERT INTO app_user (email, login_token, password)
+VALUES ('nils.nordmann@hotmail.com', '11111222223333344444', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932');
 
 INSERT INTO gift_card (store_name, card_code, balance_int, app_user_id, expiry_date, logo_image)
 VALUES ('Jernia', '12345678', 50050, 1, TO_DATE('22.12.2020', 'DD/MM/YYYY'), 'Logo image URL');
