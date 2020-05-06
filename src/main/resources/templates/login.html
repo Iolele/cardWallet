@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
 <head>
     <meta charset="UTF-8">
     <title>Log in</title>
@@ -14,7 +14,7 @@
 
 <div class="image">
 
-     <img th:src="wallit_navn_logo.png" class="wallitLogo">
+     <img th:src="@{/wallit_navn_logo.png}" class="wallitLogo">
 
     <form autocomplete="off" method="post" th:action="@{/login}">
         <h2>Login</h2>

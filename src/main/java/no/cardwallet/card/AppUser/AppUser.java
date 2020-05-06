@@ -12,14 +12,11 @@ public class AppUser {
     private String password;
     @Transient
     private String repeatPassword;
+    private String loginToken; //registration
+    private boolean isActive = false; //MailService
+
 
     public AppUser() {}
-
-    public AppUser(String email, String password, String repeatPassword) {
-        this.email = email;
-        this.password = password;
-        this.repeatPassword = repeatPassword;
-    }
 
     public Long getId() {
         return id;
@@ -48,8 +45,14 @@ public class AppUser {
     public String getRepeatPassword() {
         return repeatPassword;
     }
+    //used by @ModelAttribute
+    public void setRepeatPassword(String repeatPassword) { this.repeatPassword = repeatPassword; }
 
-    public void setRepeatPassword(String repeatPassword) {
-        this.repeatPassword = repeatPassword;
-    }
+    public String getLoginToken() { return loginToken; }
+
+    public void setLoginToken(String loginToken) { this.loginToken = loginToken; }
+
+    public boolean getIsActive() { return isActive; }
+
+    public void setIsActive(boolean isActive) { this.isActive = isActive; }
 }

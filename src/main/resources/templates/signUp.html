@@ -10,13 +10,13 @@
     <span class="phoneCase">
         <span class="phoneContainer">
         <div class="image">
-            <img th:src="wallit_navn_logo.png" class="wallitLogo">
+            <img src="/wallit_navn_logo.png" class="wallitLogo">
             <form action="/save-user" th:object="${appUser}" method="post">
                 <h2>Sign up</h2>
                     <input type="text" th:field="*{email}" placeholder="Email"/>
                         <p class="popup" th:if="${#fields.hasErrors('email')}">Please enter a valid email address.</p>
                      <input type="password" th:field="*{password}" placeholder="Password"/>
-                        <p class="popup" th:if="${#fields.hasErrors('password')}">Please enter a password.</p>
+                        <p class="popup" th:if="${#fields.hasErrors('password')}">Please enter a valid password.</p>
                     <input type="password" th:field="*{repeatPassword}" placeholder="Confirm password"/>
                         <p class="popup" th:if="${#fields.hasErrors('repeatPassword')}">Passwords are not a match.</p>
                     <p id="termsText"><input type="checkbox" id="terms"/>

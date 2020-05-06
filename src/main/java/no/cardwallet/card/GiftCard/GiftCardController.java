@@ -39,7 +39,7 @@ public class GiftCardController {
     }
 
     //part of refactoring
-    private boolean checkPrincipalIsCardOwner(@PathVariable Long appUserId, @PathVariable Long cardId, Principal principal) {
+    private boolean checkPrincipalIsCardOwner( Long appUserId, Long cardId, Principal principal) {
         Long principalUserId = getAppUserId(principal);
         List<GiftCard> giftCardList = giftCardRepository.findGiftCardsByAppUserId(principalUserId);
         return !giftCardList.contains(giftCardRepository.findGiftCardById(cardId)) || !principalUserId.equals(appUserId);

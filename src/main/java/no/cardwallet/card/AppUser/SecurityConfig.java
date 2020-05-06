@@ -1,6 +1,5 @@
-package no.cardwallet.card;
+package no.cardwallet.card.AppUser;
 
-import no.cardwallet.card.AppUser.AppUserDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,8 +27,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                     //.antMatchers("/resources/static/**").permitAll()
-                    .antMatchers("/sign-up", "/save-user", "/login",
-                            "/terms-and-conditions", "/forgot-password", "/successfully-reset-password",
+                    .antMatchers("/sign-up", "/save-user", "/login", "/activate-user/**", "/registration",
+                            "/terms-and-conditions", "/forgot-password", "/reset-password", "/set-new-password/**", "/save-new-password/**",
                             "/h2", "/h2/**",
                             "/**/*.png", "/**/*.jpg", "/**/*.css", "/**/*.js").permitAll()
                 .anyRequest().authenticated()

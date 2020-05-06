@@ -15,7 +15,6 @@ public class GiftCard {
     private String logoImage;
     private Long appUserId;
     @Transient
-
     private boolean isExpired;
 
     public GiftCard(String storeName, String cardCode, int balanceInt, Date expiryDate, String logoImage, boolean isExpired) {
@@ -66,9 +65,7 @@ public class GiftCard {
         return storeName;
     }
 
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
-    }
+    public void setStoreName(String storeName) { this.storeName = storeName; }
 
     public Date getExpiryDate() {
         return expiryDate;
@@ -90,7 +87,5 @@ public class GiftCard {
         return logoImage;
     }
 
-    public void setLogoImage(String logoImage) {
-        this.logoImage = logoImage;
-    }
+    public void setLogoImage(String logoImage) { this.logoImage = logoImage; }
 }
