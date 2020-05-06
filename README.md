@@ -7,9 +7,13 @@ cardWallet is a digital storage tool for gift cards.
 - Spring Boot
 - Maven
 
+## Additional information
+
+cardWallet uses Papercut's SMTP server.
+
 ## Motivation
 
-cardWallet was the authors' final project for a Java boot camp, written over a time span of 14 days.
+cardWallet was the authors' final project for a Java boot camp.
 
 ## Authors
 
