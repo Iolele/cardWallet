@@ -2,8 +2,8 @@ package no.cardwallet.card.AppUser;
 
 import no.cardwallet.card.GiftCard.GiftCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -22,7 +24,7 @@ import java.security.Principal;
 public class AppUserController {
 
     @Autowired
-    JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender;
 
     final
     PasswordEncoder passwordEncoder;
@@ -39,21 +41,15 @@ public class AppUserController {
         this.giftCardRepository = giftCardRepository;
     }
 
-    private void getAppUserByEmailAddModelAttribute(Model model, Principal principal) {
-        String email = principal.getName();
-        AppUser appUser = appUserRepository.findByEmail(email);
-        model.addAttribute(appUser);
-    }
-
-
 
     @GetMapping("/sign-up")
     public String signUp(@ModelAttribute AppUser appUser) {
         return "signUp";
     }
 
+
     @PostMapping("/save-user")
-    public String validateUser(@ModelAttribute AppUser appUser, BindingResult bindingResult) {
+    public String validateUserByEmail(@ModelAttribute AppUser appUser, BindingResult bindingResult) throws MessagingException {
         AppUserValidator appUserValidator = new AppUserValidator();
         if (appUserValidator.supports(appUser.getClass())) {
             appUserValidator.validate(appUser, bindingResult);
@@ -62,76 +58,123 @@ public class AppUserController {
             return "signUp";
         }
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
-        appUserRepository.save(appUser); //felt på user isActive (automatisk satt på 'false', blir satt til 'true' når brukeren trykker på lenken & oppretter kontakt). opprett også et felt 'token'.
-
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setTo(appUser.getEmail());
 
         generateLoginToken(appUser);
 
-        simpleMailMessage.setText("Welcome to wallit! To complete your registration follow this link:\n" + appUser.getLoginToken()); // FIXME hvordan lage token som lenk?
-        javaMailSender.send(simpleMailMessage);
-        return "successfullyResetPassword"; //rename view
+        appUserRepository.save(appUser);
+
+        sendActivationLink(appUser.getEmail(), appUser.getLoginToken());
+
+        return "registration";
     }
 
     private void generateLoginToken(@ModelAttribute AppUser appUser) {
         StringBuilder stringBuilder = new StringBuilder();
         int[] loginTokenArray = new int[20];
         for (int i = 0; i < loginTokenArray.length; i++) {
-            loginTokenArray[i] = (int) (Math.random() *10);
+            loginTokenArray[i] = (int) (Math.random() * 10);
             stringBuilder.append(loginTokenArray[i]);
         }
         String loginToken = stringBuilder.toString();
-        appUser.setLoginToken(loginToken); //FIXME hvorfor blir ikke login token lagret i database?
+        appUser.setLoginToken(loginToken);
     }
 
-    //activate-user/<randomstring> --> send her! token er en random string av fast lengde
+    public void sendActivationLink(String email, String loginToken) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+        mimeMessageHelper.setTo(email);
+        String subject = "Complete your wallit registration!";
+        mimeMessageHelper.setSubject(subject);
+        String loginLink = "http://localhost:8080/activate-user/" + loginToken;
+        mimeMessageHelper.setText("Welcome to wallit! Click this link to complete your registration.\n" + loginLink,
+                "<html><a href=\"" + loginLink + "\">Welcome to wallit! Click here to complete your registration.</a></html>");
+        javaMailSender.send(mimeMessage);
+    }
+
+
     @GetMapping("/activate-user/{loginToken}")
     public String activateUser(@PathVariable String loginToken) {
-        return null;
+        AppUser appUser = appUserRepository.findByLoginToken(loginToken);
+        appUser.setIsActive(true);
+        appUserRepository.save(appUser);
+        return "login";
     }
+
 
     @GetMapping("/terms-and-conditions")
     public String termsAndConditions() {
         return "termsAndConditions";
     }
 
+
     @GetMapping("/login")
     public String userLogin() {
         return "login";
     }
+
 
     @GetMapping("/logout")
     public String logout() {
         return "login";
     }
 
+
     @GetMapping("/forgot-password")
     public String forgotPassword() {
         return "forgotPassword";
     }
 
-    @PostMapping("/successfully-reset-password")
-    public String passwordReset(@RequestParam String email) {
+
+    @PostMapping("/reset-password")
+    public String sendResetPasswordLink(@RequestParam String email) throws MessagingException {
         if (appUserRepository.findAppUserByEmail(email) != null) {
             AppUser appUser = appUserRepository.findAppUserByEmail(email);
-            appUser.setPassword(passwordEncoder.encode("Alphab3t")); // TODO: generate link & send with email
+            generateLoginToken(appUser);
             appUserRepository.save(appUser);
+            sendForgotPasswordLink(email, appUser.getLoginToken());
         } else {
             return "redirect:/sign-up";
         }
-        return "successfullyResetPassword";
+        return "registration";
     }
 
-    @GetMapping ("/sureYouWantToDeleteAccount")
-    public String sureYouWantToDeleteAccount () {
-        return "deleteAccount";
+    public void sendForgotPasswordLink(String email, String loginToken) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+        mimeMessageHelper.setTo(email);
+        String subject = "Reset your wallit password";
+        mimeMessageHelper.setSubject(subject);
+        String loginLink = "http://localhost:8080/set-new-password/" + loginToken;
+        mimeMessageHelper.setText("Reset your wallit password now. Follow this link:\n" + loginLink,
+                "<html><a href=\"" + loginLink + "\">Reset your wallit password now.</a></html>");
+        javaMailSender.send(mimeMessage);
     }
+
+    @GetMapping("/set-new-password/{loginToken}")
+    public String setNewPassword(@PathVariable String loginToken, @ModelAttribute AppUser appUser) {
+        return "resetPassword";
+    }
+
+
+
+    @PostMapping("/save-new-password/{loginToken}")
+    public String saveNewPassword(Model model, @PathVariable String loginToken, @ModelAttribute AppUser appUser, BindingResult bindingResult) {
+        AppUser dataBaseAppUser = appUserRepository.findByLoginToken(loginToken); //use email??
+        AppUserValidator appUserValidator = new AppUserValidator();
+        appUserValidator.validate(appUser, bindingResult);
+
+        dataBaseAppUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
+        appUserRepository.save(dataBaseAppUser);
+        model.addAttribute("loginToken", loginToken);
+        return "login";
+    }
+
 
     @GetMapping("/settings")
     public String userSettings(@ModelAttribute AppUser appUser) {
         return "userSettings";
     }
+
 
     @GetMapping("/change-email")
     public String changeEmail(Model model, Principal principal) {
@@ -139,22 +182,31 @@ public class AppUserController {
         return "changeEmail";
     }
 
+    private void getAppUserByEmailAddModelAttribute(Model model, Principal principal) {
+        String email = principal.getName();
+        AppUser appUser = appUserRepository.findByEmail(email);
+        model.addAttribute(appUser);
+    }
+
+
     @PostMapping("/save-changed-email")
-    public String saveChangedEmail (Model model, Principal principal, @ModelAttribute AppUser appUserPosting, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    public String saveChangedEmail(Model model, Principal principal, @ModelAttribute AppUser appUserPosting, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         String email = principal.getName();
         AppUser appUser = appUserRepository.findByEmail(email);
         model.addAttribute(appUser);
         appUser.setEmail(appUserPosting.getEmail());
         appUserRepository.save(appUser);
-        new SecurityContextLogoutHandler().logout(httpRequest,  httpResponse, SecurityContextHolder.getContext().getAuthentication());
+        new SecurityContextLogoutHandler().logout(httpRequest, httpResponse, SecurityContextHolder.getContext().getAuthentication());
         return "successfullyChangedEmail";
     }
+
 
     @GetMapping("/change-password")
     public String changePassword(Model model, Principal principal) {
         getAppUserByEmailAddModelAttribute(model, principal);
         return "changePassword";
     }
+
 
     @PostMapping("/save-changed-password")
     public String saveChangedPassword(Model model, Principal principal, @ModelAttribute AppUser appUserPosting, BindingResult bindingResult) {
@@ -173,6 +225,13 @@ public class AppUserController {
         model.addAttribute(appUser);
         return "successfullyChangedPassword";
     }
+
+
+    @GetMapping("/want-to-delete-account")
+    public String sureYouWantToDeleteAccount() {
+        return "deleteAccount";
+    }
+
 
     @Transactional
     @GetMapping("/delete-app-user")

@@ -87,7 +87,5 @@ public class GiftCard {
         return logoImage;
     }
 
-    public void setLogoImage(String logoImage) {
-        this.logoImage = logoImage;
-    }
+    public void setLogoImage(String logoImage) { this.logoImage = logoImage; }
 }

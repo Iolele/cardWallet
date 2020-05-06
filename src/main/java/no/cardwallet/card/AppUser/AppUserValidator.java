@@ -17,7 +17,6 @@ public class AppUserValidator implements Validator {
     @Override
     public void validate(Object object, Errors errors) {
         AppUser appUser = (AppUser) object;
-
         // validate email address; main validation by sending email to newly registered users, see AUController.
         ValidationUtils.rejectIfEmpty(errors, "email", "email.empty", "Email address is required.");
         //validate password

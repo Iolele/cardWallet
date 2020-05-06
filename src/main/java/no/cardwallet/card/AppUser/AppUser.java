@@ -12,8 +12,8 @@ public class AppUser {
     private String password;
     @Transient
     private String repeatPassword;
-    // private boolean isActive = false; //MailService
     private String loginToken; //registration
+    private boolean isActive = false; //MailService
 
 
     public AppUser() {}
@@ -48,11 +48,11 @@ public class AppUser {
     //used by @ModelAttribute
     public void setRepeatPassword(String repeatPassword) { this.repeatPassword = repeatPassword; }
 
-    //public boolean getIsActive() { return isActive; }
-
-    //public void setIsActive(boolean isActive) { this.isActive = isActive; }
-
     public String getLoginToken() { return loginToken; }
 
     public void setLoginToken(String loginToken) { this.loginToken = loginToken; }
+
+    public boolean getIsActive() { return isActive; }
+
+    public void setIsActive(boolean isActive) { this.isActive = isActive; }
 }

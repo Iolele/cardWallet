@@ -10,7 +10,7 @@
     <span class="phoneCase">
         <span class="phoneContainer">
         <div class="image">
-            <img th:src="wallit_navn_logo.png" class="wallitLogo">
+            <img src="/wallit_navn_logo.png" class="wallitLogo">
             <form action="/save-user" th:object="${appUser}" method="post">
                 <h2>Sign up</h2>
                     <input type="text" th:field="*{email}" placeholder="Email"/>

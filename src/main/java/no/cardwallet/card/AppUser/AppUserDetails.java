@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class AppUserDetails implements UserDetails {
-    private AppUser appUser;
+    private final AppUser appUser;
 
     AppUserDetails(AppUser appUser) {
         this.appUser = appUser;
@@ -46,6 +46,6 @@ public class AppUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return appUser.getIsActive();
     }
 }

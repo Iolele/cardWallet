@@ -2,7 +2,8 @@ CREATE TABLE app_user(
 id BIGINT AUTO_INCREMENT PRIMARY KEY,
 email VARCHAR(254) NOT NULL,
 password VARCHAR(100) NOT NULL,
-login_token VARCHAR(20) UNIQUE  --! bør være 'NOT NULL', kan ikke ha det sånn nå, fordi token blir ikke lagret i database (dvs er alltid null) --
+login_token VARCHAR(20) UNIQUE NOT NULL,
+is_active BOOLEAN NOT NULL
 );
 
 CREATE TABLE gift_card(
