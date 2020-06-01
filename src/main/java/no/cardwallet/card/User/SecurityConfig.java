@@ -1,4 +1,4 @@
-package no.cardwallet.card.AppUser;
+package no.cardwallet.card.User;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final AppUserDetailService appUserDetailService;
+    private final UserDetailService userDetailService;
 
-    public SecurityConfig(AppUserDetailService appUserDetailService) {
-        this.appUserDetailService = appUserDetailService;
+    public SecurityConfig(UserDetailService userDetailService) {
+        this.userDetailService = userDetailService;
     }
 
     @Override
@@ -26,7 +26,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()
-                    //.antMatchers("/resources/static/**").permitAll()
                     .antMatchers("/sign-up", "/save-user", "/login", "/activate-user/**", "/registration",
                             "/terms-and-conditions", "/forgot-password", "/reset-password", "/set-new-password/**", "/save-new-password/**",
                             "/h2", "/h2/**",
@@ -47,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(appUserDetailService);
+        authenticationProvider.setUserDetailsService(userDetailService);
         authenticationProvider.setPasswordEncoder(encoder());
         return authenticationProvider;
     }

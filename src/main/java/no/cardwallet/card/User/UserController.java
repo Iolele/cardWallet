@@ -1,7 +1,6 @@
-package no.cardwallet.card.AppUser;
+package no.cardwallet.card.User;
 
-import no.cardwallet.card.GiftCard.GiftCardRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import no.cardwallet.card.Card.CardRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,62 +20,60 @@ import java.security.Principal;
 
 
 @Controller
-public class AppUserController {
+public class UserController {
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     final
     PasswordEncoder passwordEncoder;
 
     final
-    GiftCardRepository giftCardRepository;
+    CardRepository cardRepository;
 
     final
-    AppUserRepository appUserRepository;
+    UserRepository userRepository;
 
-    public AppUserController(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder, GiftCardRepository giftCardRepository) {
-        this.appUserRepository = appUserRepository;
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, CardRepository cardRepository, JavaMailSender javaMailSender) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.giftCardRepository = giftCardRepository;
+        this.cardRepository = cardRepository;
+        this.javaMailSender = javaMailSender;
     }
 
 
     @GetMapping("/sign-up")
-    public String signUp(@ModelAttribute AppUser appUser) {
+    public String signUp(@ModelAttribute User user) {
         return "signUp";
     }
 
 
     @PostMapping("/save-user")
-    public String validateUserByEmail(@ModelAttribute AppUser appUser, BindingResult bindingResult) throws MessagingException {
-        AppUserValidator appUserValidator = new AppUserValidator();
-        if (appUserValidator.supports(appUser.getClass())) {
-            appUserValidator.validate(appUser, bindingResult);
+    public String validateUserByEmail(@ModelAttribute User user, BindingResult bindingResult) throws MessagingException {
+        UserValidator userValidator = new UserValidator();
+        if (userValidator.supports(user.getClass())) {
+            userValidator.validate(user, bindingResult);
         }
         if (bindingResult.hasErrors()) {
             return "signUp";
         }
-        appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        generateLoginToken(appUser);
+        generateLoginToken(user);
 
-        appUserRepository.save(appUser);
+        userRepository.save(user);
 
-        sendActivationLink(appUser.getEmail(), appUser.getLoginToken());
+        sendActivationLink(user.getEmail(), user.getLoginToken());
 
         return "registration";
     }
 
-    private void generateLoginToken(@ModelAttribute AppUser appUser) {
+    private void generateLoginToken(@ModelAttribute User user) {
         StringBuilder stringBuilder = new StringBuilder();
-        int[] loginTokenArray = new int[20];
-        for (int i = 0; i < loginTokenArray.length; i++) {
-            loginTokenArray[i] = (int) (Math.random() * 10);
-            stringBuilder.append(loginTokenArray[i]);
+        for (int i = 0; i < 20; i++) {
+            int temp = (int) (Math.random() * 10);
+            stringBuilder.append(temp);
         }
-        String loginToken = stringBuilder.toString();
-        appUser.setLoginToken(loginToken);
+        user.setLoginToken(stringBuilder.toString());
     }
 
     public void sendActivationLink(String email, String loginToken) throws MessagingException {
@@ -94,9 +91,9 @@ public class AppUserController {
 
     @GetMapping("/activate-user/{loginToken}")
     public String activateUser(@PathVariable String loginToken) {
-        AppUser appUser = appUserRepository.findByLoginToken(loginToken);
-        appUser.setIsActive(true);
-        appUserRepository.save(appUser);
+        User user = userRepository.findByLoginToken(loginToken);
+        user.setIsActive(true);
+        userRepository.save(user);
         return "login";
     }
 
@@ -127,11 +124,11 @@ public class AppUserController {
 
     @PostMapping("/reset-password")
     public String sendResetPasswordLink(@RequestParam String email) throws MessagingException {
-        if (appUserRepository.findAppUserByEmail(email) != null) {
-            AppUser appUser = appUserRepository.findAppUserByEmail(email);
-            generateLoginToken(appUser);
-            appUserRepository.save(appUser);
-            sendForgotPasswordLink(email, appUser.getLoginToken());
+        if (userRepository.findByEmail(email) != null) {
+            User user = userRepository.findByEmail(email);
+            generateLoginToken(user);
+            userRepository.save(user);
+            sendForgotPasswordLink(email, user.getLoginToken());
         } else {
             return "redirect:/sign-up";
         }
@@ -151,51 +148,50 @@ public class AppUserController {
     }
 
     @GetMapping("/set-new-password/{loginToken}")
-    public String setNewPassword(@PathVariable String loginToken, @ModelAttribute AppUser appUser) {
+    public String setNewPassword(@PathVariable String loginToken, @ModelAttribute User user) {
         return "resetPassword";
     }
 
 
-
     @PostMapping("/save-new-password/{loginToken}")
-    public String saveNewPassword(Model model, @PathVariable String loginToken, @ModelAttribute AppUser appUser, BindingResult bindingResult) {
-        AppUser dataBaseAppUser = appUserRepository.findByLoginToken(loginToken); //use email??
-        AppUserValidator appUserValidator = new AppUserValidator();
-        appUserValidator.validate(appUser, bindingResult);
+    public String saveNewPassword(Model model, @PathVariable String loginToken, @ModelAttribute User user, BindingResult bindingResult) {
+        User dBUser = userRepository.findByLoginToken(loginToken);
+        UserValidator userValidator = new UserValidator();
+        userValidator.validate(user, bindingResult);
 
-        dataBaseAppUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
-        appUserRepository.save(dataBaseAppUser);
+        dBUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(dBUser);
         model.addAttribute("loginToken", loginToken);
         return "login";
     }
 
 
     @GetMapping("/settings")
-    public String userSettings(@ModelAttribute AppUser appUser) {
+    public String userSettings(@ModelAttribute User user) {
         return "userSettings";
     }
 
 
     @GetMapping("/change-email")
     public String changeEmail(Model model, Principal principal) {
-        getAppUserByEmailAddModelAttribute(model, principal);
+        getUserByEmailAddModelAttribute(model, principal);
         return "changeEmail";
     }
 
-    private void getAppUserByEmailAddModelAttribute(Model model, Principal principal) {
+    private void getUserByEmailAddModelAttribute(Model model, Principal principal) {
         String email = principal.getName();
-        AppUser appUser = appUserRepository.findByEmail(email);
-        model.addAttribute(appUser);
+        User user = userRepository.findByEmail(email);
+        model.addAttribute(user);
     }
 
 
     @PostMapping("/save-changed-email")
-    public String saveChangedEmail(Model model, Principal principal, @ModelAttribute AppUser appUserPosting, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    public String saveChangedEmail(Model model, Principal principal, @ModelAttribute User userPosting, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         String email = principal.getName();
-        AppUser appUser = appUserRepository.findByEmail(email);
-        model.addAttribute(appUser);
-        appUser.setEmail(appUserPosting.getEmail());
-        appUserRepository.save(appUser);
+        User user = userRepository.findByEmail(email);
+        model.addAttribute(user);
+        user.setEmail(userPosting.getEmail());
+        userRepository.save(user);
         new SecurityContextLogoutHandler().logout(httpRequest, httpResponse, SecurityContextHolder.getContext().getAuthentication());
         return "successfullyChangedEmail";
     }
@@ -203,26 +199,26 @@ public class AppUserController {
 
     @GetMapping("/change-password")
     public String changePassword(Model model, Principal principal) {
-        getAppUserByEmailAddModelAttribute(model, principal);
+        getUserByEmailAddModelAttribute(model, principal);
         return "changePassword";
     }
 
 
     @PostMapping("/save-changed-password")
-    public String saveChangedPassword(Model model, Principal principal, @ModelAttribute AppUser appUserPosting, BindingResult bindingResult) {
+    public String saveChangedPassword(Model model, Principal principal, @ModelAttribute User userPosting, BindingResult bindingResult) {
         String email = principal.getName();
-        AppUser appUser = appUserRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
 
-        AppUserValidator appUserValidator = new AppUserValidator();
-        if (appUserValidator.supports(appUser.getClass())) {
-            appUserValidator.validateRepeatPassword(appUserPosting.getPassword(), appUserPosting.getRepeatPassword(), bindingResult);
+        UserValidator userValidator = new UserValidator();
+        if (userValidator.supports(user.getClass())) {
+            userValidator.validateRepeatPassword(userPosting.getPassword(), userPosting.getRepeatPassword(), bindingResult);
         }
         if (bindingResult.hasErrors()) {
             return "changePassword";
         }
-        appUser.setPassword(passwordEncoder.encode(appUserPosting.getPassword()));
-        appUserRepository.save(appUser);
-        model.addAttribute(appUser);
+        user.setPassword(passwordEncoder.encode(userPosting.getPassword()));
+        userRepository.save(user);
+        model.addAttribute(user);
         return "successfullyChangedPassword";
     }
 
@@ -234,12 +230,12 @@ public class AppUserController {
 
 
     @Transactional
-    @GetMapping("/delete-app-user")
-    public String deleteAppUser(Principal principal) {
+    @GetMapping("/delete-user")
+    public String deleteUser(Principal principal) {
         String email = principal.getName();
-        Long appUserId = appUserRepository.findByEmail(email).getId();
-        giftCardRepository.deleteByAppUserId(appUserId);
-        appUserRepository.deleteAppUserByEmail(email);
+        Long id = userRepository.findByEmail(email).getId();
+        cardRepository.deleteByUserId(id);
+        userRepository.deleteUserByEmail(email);
         return "redirect:/sign-up";
     }
 

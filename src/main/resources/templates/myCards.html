@@ -19,43 +19,43 @@
 
 <div id="showCardContainer" class="mainContainer">
 
-    <div class="noGiftCards" th:if="${giftCardList.size()} == 0">
+    <div class="noGiftCards" th:if="${cardList.size()} == 0">
         <div>You do not have any gift cards yet...</div>
         <div>Add your first gift card now!</div>
-        <a href="/add-gift-card">
+        <a href="/add-card">
             <button class="addCardButtonFromNoCards"><i class="fa fa-plus" style="color: black"></i></button></a>
     </div>
 
-        <div th:if="${giftCardList.size() >= 1}" th:each="giftCard : ${giftCardList}">
+        <div th:if="${cardList.size() >= 1}" th:each="card : ${cardList}">
 
 
-               <div th:if="${!giftCard.isExpired()}">
+               <div th:if="${!card.isExpired()}">
 
                 <div class="cardContainer">
-                <a th:href="'/show-gift-card/' + ${giftCard.appUserId} + '/' + ${giftCard.id}">
+                <a th:href="'/show-card/' + ${card.userId} + '/' + ${card.id}">
                     <div class="logoContainer" th:fragment="logo">
-                        <img th:src="'/images/' + ${giftCard.storeName} + '.jpg'" alt="store logo" class="logoMyCards">
+                        <img th:src="'/images/' + ${card.storeName} + '.jpg'" alt="store logo" class="logoMyCards">
                     </div>
                     <div class="infoMyCardsContainer">
-                        <p th:text="${giftCard.storeName}" style="font-weight: bold"></p>
-                        <p th:text="'Balance: ' + ${giftCard.balanceInt} + ' NOK'"></p>
-                        <p th:text="'Exp: ' + ${#dates.format(giftCard.expiryDate, 'd.MM.yyyy')}"></p>
+                        <p th:text="${card.storeName}" style="font-weight: bold"></p>
+                        <p th:text="'Balance: ' + ${card.balanceInt} + ' NOK'"></p>
+                        <p th:text="'Exp: ' + ${#dates.format(card.expiryDate, 'd.MM.yyyy')}"></p>
                         <p>
                     </div>
                 </a>
             </div>
         </div>
 
-            <div th:if="${giftCard.isExpired()}">
+            <div th:if="${card.isExpired()}">
                 <div class="cardContainer" style="background-color: lightgrey;" >
-                <a th:href="'/show-gift-card/' + ${giftCard.appUserId} + '/' + ${giftCard.id}">
+                <a th:href="'/show-card/' + ${card.appUserId} + '/' + ${card.id}">
                     <div class="logoContainer" th:fragment="logo">
-                        <img th:src="'/images/' + ${giftCard.storeName} + '.jpg'" alt="store logo" class="logoMyCards">
+                        <img th:src="'/images/' + ${card.storeName} + '.jpg'" alt="store logo" class="logoMyCards">
                     </div>
                     <div class="infoMyCardsContainer">
-                        <p th:text="${giftCard.storeName}" style="font-weight: bold"></p>
-                        <p th:text="'Balance: ' + ${giftCard.balanceInt} + ' NOK'"></p>
-                        <p>  <p style="color: orangered;" th:text="'Exp: ' + ${#dates.format(giftCard.expiryDate, 'd.MM.yyyy')}"> </p></p>
+                        <p th:text="${card.storeName}" style="font-weight: bold"></p>
+                        <p th:text="'Balance: ' + ${card.balanceInt} + ' NOK'"></p>
+                        <p>  <p style="color: orangered;" th:text="'Exp: ' + ${#dates.format(card.expiryDate, 'd.MM.yyyy')}"> </p></p>
                         <p>
                     </div>
                 </a>
@@ -66,7 +66,7 @@
    </div>
     </div>
            <div id="footer">
-            <a href="/add-gift-card" class="options"><span><i class="fa fa-plus"></i></span></a>
+            <a href="/add-card" class="options"><span><i class="fa fa-plus"></i></span></a>
                 <span class="options" id="clickedView"><i class="fa fa-credit-card"></i></span>
             <a href="/settings" class="options"><span><i class="fa fa-cog"></i></span></a>
     </div>

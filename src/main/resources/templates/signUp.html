@@ -11,7 +11,7 @@
         <span class="phoneContainer">
         <div class="image">
             <img src="/wallit_navn_logo.png" class="wallitLogo">
-            <form action="/save-user" th:object="${appUser}" method="post">
+            <form action="/save-user" th:object="${user}" method="post">
                 <h2>Sign up</h2>
                     <input type="text" th:field="*{email}" placeholder="Email"/>
                         <p class="popup" th:if="${#fields.hasErrors('email')}">Please enter a valid email address.</p>

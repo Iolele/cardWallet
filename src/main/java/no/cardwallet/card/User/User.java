@@ -1,9 +1,9 @@
-package no.cardwallet.card.AppUser;
+package no.cardwallet.card.User;
 
 import javax.persistence.*;
 
 @Entity
-public class AppUser {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -12,11 +12,11 @@ public class AppUser {
     private String password;
     @Transient
     private String repeatPassword;
-    private String loginToken; //registration
-    private boolean isActive = false; //MailService
+    private String loginToken;
+    private boolean isActive = false;
 
 
-    public AppUser() {}
+    public User() {}
 
     public Long getId() {
         return id;

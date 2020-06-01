@@ -1,4 +1,4 @@
-package no.cardwallet.card.AppUser;
+package no.cardwallet.card.User;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -7,17 +7,17 @@ import org.springframework.validation.Validator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AppUserValidator implements Validator {
+public class UserValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> aClass) {
-        return AppUser.class.equals(aClass);
+        return User.class.equals(aClass);
     }
 
     @Override
     public void validate(Object object, Errors errors) {
-        AppUser appUser = (AppUser) object;
-        // validate email address; main validation by sending email to newly registered users, see AUController.
+        User appUser = (User) object;
+        // validate email address;also by sending email to newly registered users, see AUController.
         ValidationUtils.rejectIfEmpty(errors, "email", "email.empty", "Email address is required.");
         //validate password
         ValidationUtils.rejectIfEmpty(errors, "password", "password.empty", "Password is required.");
@@ -47,7 +47,7 @@ public class AppUserValidator implements Validator {
 
     public void validateRepeatPassword(String password, String repeatPassword, Errors errors) {
         if (!password.equals(repeatPassword)) {
-            errors.rejectValue("repeatPassword", "password.notEqual", "Passwords not equal.");
+            errors.rejectValue("repeatPassword", "password.notEqual", "Passwords not a match.");
         }
     }
 }

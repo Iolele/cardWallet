@@ -1,10 +1,11 @@
-package no.cardwallet.card.GiftCard;
+package no.cardwallet.card.Card;
 
 import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
-public class GiftCard {
+
+public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,11 +14,11 @@ public class GiftCard {
     private Date expiryDate;
     private int balanceInt;
     private String logoImage;
-    private Long appUserId;
+    private Long userId;
     @Transient
     private boolean isExpired;
 
-    public GiftCard(String storeName, String cardCode, int balanceInt, Date expiryDate, String logoImage, boolean isExpired) {
+    public Card(String storeName, String cardCode, int balanceInt, Date expiryDate, String logoImage, boolean isExpired) {
         this.storeName = storeName;
         this.cardCode = cardCode;
         this.balanceInt = balanceInt;
@@ -26,23 +27,19 @@ public class GiftCard {
         this.isExpired = isExpired;
     }
 
-    public GiftCard() {
+    public Card() {
     }
 
-    public boolean isExpired() {
-        return isExpired;
-    }
+    public boolean isExpired() { return isExpired; }
 
     public void setExpired(boolean expired) {
         isExpired = expired;
     }
 
-    public Long getAppUserId() {
-        return appUserId;
-    }
+    public Long getUserId() { return userId; }
 
-    public void setAppUserId(Long appUserId) {
-        this.appUserId = appUserId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getId() {
@@ -57,9 +54,7 @@ public class GiftCard {
         return cardCode;
     }
 
-    public void setCardCode(String cardCode) {
-        this.cardCode = cardCode;
-    }
+    public void setCardCode(String cardCode) { this.cardCode = cardCode; }
 
     public String getStoreName() {
         return storeName;

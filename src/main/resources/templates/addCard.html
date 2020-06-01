@@ -19,7 +19,7 @@
     </div>
 
         <div class="mainContainer" id="addCardContainer">
-            <form method="post" th:action="'/save-new-gift-card'" th:object="${giftCard}">
+            <form method="post" th:action="'/save-new-card'" th:object="${card}">
                 <div class="addCardDescription"> Store Name: </div>
                     <div> <input class="addCardInput" required type="text" th:field="*{storeName}"></div>
                 <div class="addCardDescription"> Amount: </div>
