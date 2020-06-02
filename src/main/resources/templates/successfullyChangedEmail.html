@@ -11,7 +11,7 @@
         <span class="phoneContainer">
             <div class="image">
                 <div id="requestPasswordToken">Please log in with your new email address.</div>
-                <form method="post" th:action="@{/login}">
+                <form method="get" action="/login">
                     <div><input class="button" type="submit" value="Login"></div>
                 </form>
             </div>
