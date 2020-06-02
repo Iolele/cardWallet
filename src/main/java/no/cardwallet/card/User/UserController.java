@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.security.Principal;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Controller
@@ -68,12 +70,8 @@ public class UserController {
     }
 
     private void generateLoginToken(@ModelAttribute User user) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 20; i++) {
-            int temp = (int) (Math.random() * 10);
-            stringBuilder.append(temp);
-        }
-        user.setLoginToken(stringBuilder.toString());
+        String stringBuilder = IntStream.range(0, 20).map(i -> (int) (Math.random() * 10)).mapToObj(String::valueOf).collect(Collectors.joining());
+        user.setLoginToken(stringBuilder);
     }
 
     public void sendActivationLink(String email, String loginToken) throws MessagingException {

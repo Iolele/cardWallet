@@ -1,30 +1,37 @@
 package no.cardwallet.card;
 
 import no.cardwallet.card.Card.CardRepository;
+import no.cardwallet.card.User.UserDetailService;
 import no.cardwallet.card.User.UserRepository;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@AutoConfigureMockMvc
 class CardWalletApplicationTests {
-
 
     @Autowired
     UserRepository userRepository;
 
-
     @Autowired
     CardRepository cardRepository;
+
 
     @Test
     void contextLoads() {
     }
+
 
     @Test
     public void testFindUserIdByEmail() {
@@ -40,7 +47,6 @@ class CardWalletApplicationTests {
         Assert.assertEquals("Login token 12345678901234567890 belongs to 'nils.nordmann@hotmail.com'' account", "nils.nordmann@hotmail.com", userRepository.findByLoginToken("11111222223333344444").getEmail());
     }
 
-
     @Test
     public void testFindCardById() {
         Assert.assertEquals("The card with the id number '1' is from Jernia.", "Jernia", cardRepository.findCardById(1L).getStoreName());
@@ -54,4 +60,33 @@ class CardWalletApplicationTests {
         Assert.assertEquals("The user with id 2 has 3 cards.", 3, cardRepository.findAllCardsByUserId(2L).size());
         Assert.assertEquals("The user with id 3 has 5 cards.", 5, cardRepository.findAllCardsByUserId(3L).size());
     }
+
+    @Autowired
+    UserDetailService userDetailService;
+
+    @Test
+    public void test() {
+
+    }
+
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    public void testSignUp() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/sign-up")
+        )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testActivateUser() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/activate-user/09876543210897654321")
+        )
+                .andExpect(status().is2xxSuccessful());
+    }
 }
+
