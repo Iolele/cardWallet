@@ -1,11 +1,11 @@
 INSERT INTO user (email,login_token, password, is_active)
-VALUES ('geir.karlsen@hotmail.com','12345678901234567890', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932', true );
+VALUES ('geir.karlsen@hotmail.com','12345678901234567890', '$2a$10$M7NO5E0MexfYqqqmZK1QROKeZS1U8HJbXpTcdoB7zv6l6ZPXOH652', true );-- 'CoolDad1'
 
 INSERT INTO user (email, login_token, password, is_active)
-VALUES ('elise.norvik@hotmail.com', '09876543210897654321', '$2a$10$.TfieO7U8dAd3v4IXpIr8.5ltZJLFHc1NFAMUcC51VuZqY1WHq932', true); -- passord = 123; works despite new requirements
+VALUES ('elise.norvik@hotmail.com', '09876543210897654321', '$2a$10$M7NO5E0MexfYqqqmZK1QROKeZS1U8HJbXpTcdoB7zv6l6ZPXOH652', true);
 
 INSERT INTO user (email, login_token, password, is_active)
-VALUES ('nils.nordmann@hotmail.com', '11111222223333344444', '$2a$10$6NQXO616c8qEZH4t1BOdIuV3IRFNj2IUL/93xr.9KUHW3JlKg38yK', true); -- 'Password1'
+VALUES ('nils.nordmann@hotmail.com', '11111222223333344444', '$2a$10$VQzuRHEplm/oyqp1uyJc0eghTjPuTJOC/A3RG3tOJeXxiQlf27eqG', true);
 
 INSERT INTO card (store_name, card_code, balance_int, user_id, expiry_date, logo_image)
 VALUES ('Jernia', '12345678', 50050, 1, TO_DATE('22.12.2020', 'DD/MM/YYYY'), 'Logo image URL');

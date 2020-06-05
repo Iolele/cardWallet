@@ -45,7 +45,7 @@ public class User {
     public String getRepeatPassword() {
         return repeatPassword;
     }
-    //used by @ModelAttribute
+
     public void setRepeatPassword(String repeatPassword) { this.repeatPassword = repeatPassword; }
 
     public String getLoginToken() { return loginToken; }

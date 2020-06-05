@@ -88,5 +88,14 @@ class CardWalletApplicationTests {
         )
                 .andExpect(status().is2xxSuccessful());
     }
+
+    @Test
+    public void saveUserShouldNotAcceptInvalidPassword() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/save-user")
+                .param("password", "password1")
+        )
+                .andExpect(status().is4xxClientError());
+    }
 }
 

@@ -1,6 +1,7 @@
 package no.cardwallet.card.User;
 
 import no.cardwallet.card.Card.CardRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -48,15 +50,19 @@ public class UserController {
         return "signUp";
     }
 
-
     @PostMapping("/save-user")
-    public String validateUserByEmail(@ModelAttribute User user, BindingResult bindingResult) throws MessagingException {
+    public ModelAndView validateUserByEmail(User user, BindingResult bindingResult) throws MessagingException {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("registration");
+        modelAndView.addObject(user);
         UserValidator userValidator = new UserValidator();
         if (userValidator.supports(user.getClass())) {
             userValidator.validate(user, bindingResult);
         }
         if (bindingResult.hasErrors()) {
-            return "signUp";
+            modelAndView.setViewName("signUp");
+            modelAndView.setStatus(HttpStatus.BAD_REQUEST);
+            return modelAndView;
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -66,7 +72,7 @@ public class UserController {
 
         sendActivationLink(user.getEmail(), user.getLoginToken());
 
-        return "registration";
+        return modelAndView;
     }
 
     private void generateLoginToken(@ModelAttribute User user) {
